@@ -529,7 +529,8 @@ export default function TimesheetSummaryPage() {
     <div className="flex-1 flex flex-col min-h-0 bg-transparent px-4 pt-0 pb-6 md:px-6 gap-4 items-center overflow-auto custom-scrollbar">
       {/* Floating Header Card */}
       <div 
-        className="mx-auto w-full max-w-[1360px] px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-6 bg-white rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/5 shrink-0 relative z-10 mb-2"
+        className="mx-auto w-full max-w-[1360px] px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-6 bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 shrink-0 relative z-[90] mb-2 border-0"
+        style={{ borderWidth: '0px' }}
       >
         <div className="absolute inset-0 striped-pattern opacity-[0.05] pointer-events-none rounded-[2.5rem] overflow-hidden" />
         
