@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300..700&family=Montserrat:wght@300..900&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@300..800&family=Outfit:wght@300..900&family=Yellowtail&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-main: "Outfit", "Nunito", sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-script: "Yellowtail", cursive;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Font Families */
+  --font-nunito: "Nunito", sans-serif;
+  --font-quicksand: "Quicksand", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-playfair: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-space: "Space Grotesk", sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+
+  /* Design System Specs */
+  --font-main: var(--font-outfit);
+  --font-display: var(--font-playfair);
+  --font-table: var(--font-main);
+  --custom-font-size: 13px;
+  --font-weight-bold: 500;
+  --tracking-tight: 0.02em;
+
+  /* Rue de Miette Color Palette */
+  --background: #F6F4F0; 
+  --foreground: #5D111A; /* Deep Burgundy */
+  --card: #FFFFFF;
+  --card-foreground: #5D111A;
+  --primary: #C88493;    /* Dusty Rose */
+  --primary-foreground: #FFFFFF;
+  --secondary: #A5B889;  /* Sage Green */
+  --secondary-foreground: #5D111A;
+  --accent: #F2CFD5;     /* Soft Light Pink */
+  --accent-foreground: #5D111A;
+  --muted: #F4ECD8;      /* Cream */
+  --muted-foreground: #A87E84;
+  --border: rgba(93, 17, 26, 0.15);
+  --ring: #5D111A;
+  --radius: 2rem;
+
+  /* Specific Vintage Accents */
+  --vintage-brown: #5D111A;
+  --vintage-olive: #A5B889;
+
+  --stripe-color1: #F6F4F0;
+  --stripe-color2: #F4ECD8;
+
+  --pattern-stripes-purple: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(139, 92, 246, 0.05) 10px,
+    rgba(139, 92, 246, 0.05) 20px
+  );
+  --pattern-stripes-green: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(34, 197, 94, 0.05) 10px,
+    rgba(34, 197, 94, 0.05) 20px
+  );
+  --pattern-stripes-brown: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(139, 69, 19, 0.05) 10px,
+    rgba(139, 69, 19, 0.05) 20px
+  );
+}
+
+.dark {
+  --background: #5D111A;
+  --foreground: #F6F4F0;
+  --card: #4A0E15;
+  --card-foreground: #F6F4F0;
+  --popover: #4A0E15;
+  --popover-foreground: #F6F4F0;
+  --primary: #C88493;
+  --primary-foreground: #FFFFFF;
+  --secondary: #A5B889;
+  --secondary-foreground: #5D111A;
+  --muted: #4A0E15;
+  --muted-foreground: #C88493;
+  --accent: #F2CFD5;
+  --accent-foreground: #5D111A;
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: rgba(246, 244, 240, 0.15);
+  --input: rgba(246, 244, 240, 0.15);
+  --ring: #C88493;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --stripe-color1: #5D111A;
+  --stripe-color2: #4A0E15;
+}
+
+@theme {
+  --font-sans: var(--font-main);
+  --font-serif: var(--font-display);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight, 0.02em);
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--stripe-color1, #FFFBF0),
+      var(--stripe-color1, #FFFBF0) var(--stripe-width, 40px),
+      var(--stripe-color2, #F3EFE0) var(--stripe-width, 40px),
+      var(--stripe-color2, #F3EFE0) calc(var(--stripe-width, 40px) * 2)
+    );
+    pointer-events: none;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: var(--bg-image);
+    background-size: var(--bg-image-size, cover);
+    background-repeat: var(--bg-image-repeat, no-repeat);
+    background-position: var(--bg-image-position, center);
+    background-attachment: var(--bg-image-attachment, fixed);
+    opacity: var(--bg-image-opacity, 0);
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display text-foreground tracking-tight;
+  }
+
+  h1 {
+    @apply font-[700] leading-tight;
+  }
+
+  h2 {
+    @apply font-[700] tracking-[-0.01em] leading-tight;
+  }
+
+  .decorative-text {
+    @apply font-display font-[500] uppercase tracking-[0.1em];
+  }
+
+  html {
+    font-size: 16px;
+    font-family: var(--font-main);
+  }
+
+  /* Force Table Font consistently */
+  table, table th, table td, 
+  table input, table select, table textarea,
+  .table-font {
+    font-family: var(--font-table, var(--font-main)) !important;
+  }
+  
+  table {
+    font-size: 100%;
+  }
+  
+  th, td {
+    font-size: var(--custom-font-size, 13px);
+    padding: var(--table-padding, 12px 16px);
+  }
+
+  td {
+    white-space: nowrap;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+    opacity: 0.3;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+    opacity: 0.5;
+  }
+
+  /* Compatibility Fixes for older Safari/iOS */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+    font-family: inherit; /* Inherit from td or body */
+  }
+
+  .sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+
+  /* Global backdrop-filter prefixing support */
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: blur(var(--blur-amount, 8px));
+  }
+
+  /* Navigation Elevation */
+  .nav-elevation {
+    box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+    border-right: 2px solid var(--border);
+  }
+
+
+}
+
+@utility soft-card {
+  @apply bg-white border border-border rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-slate-900;
+}
+
+@layer utilities {
+  .data-table-wrapper {
+    background-color: #ffffff;
+    border-radius: 2.5rem;
+    overflow: hidden;
+  }
+  
+  .final-centers-table {
+    background-color: #ffffff !important;
+    border-collapse: separate !important;
+    border-radius: 2.5rem !important;
+    overflow: hidden !important;
+  }
+  
+  th.sticky {
+      background-color: #f3f4f6 !important;
+      z-index: 60;
+  }
+
+  tr.total-row, 
+  tr.total-row td {
+      background-color: #f3f4f6 !important;
+  }
+
+  .final-centers-table th {
+    background-color: #ffffff !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+  .final-centers-table thead tr {
+    background-color: #ffffff !important;
+  }
+  .final-centers-table thead {
+    background-color: #ffffff !important;
+    z-index: 100 !important;
+  }
+}
+
+@layer utilities {
+  .force-light {
+    --background: #F6F4F0 !important;
+    --color-background: #F6F4F0 !important;
+    --foreground: #5D111A !important;
+    --color-foreground: #5D111A !important;
+    --card: #FFFFFF !important;
+    --color-card: #FFFFFF !important;
+    --card-foreground: #5D111A !important;
+    --color-card-foreground: #5D111A !important;
+    --primary-foreground: #FFFFFF !important;
+    --color-primary-foreground: #FFFFFF !important;
+    --secondary: #A5B889 !important;
+    --color-secondary: #A5B889 !important;
+    --secondary-foreground: #5D111A !important;
+    --color-secondary-foreground: #5D111A !important;
+    --muted: #F4ECD8 !important;
+    --color-muted: #F4ECD8 !important;
+    --muted-foreground: #A87E84 !important;
+    --color-muted-foreground: #A87E84 !important;
+    --border: rgba(93, 17, 26, 0.1) !important;
+    --color-border: rgba(93, 17, 26, 0.1) !important;
+  }
+}
+
+@utility soft-button {
+  @apply rounded-full px-6 py-2.5 font-medium transition-all duration-300;
+}
+
+@utility scallop-border {
+  background-image: radial-gradient(circle at 10px 10px, transparent 10px, white 10.5px);
+  background-size: 20px 20px;
+}
+
+@utility gingham-pattern {
+  background-color: transparent;
+  background-image: 
+    linear-gradient(90deg, color-mix(in srgb, var(--primary) 8%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--primary) 8%, transparent) 50%, transparent 50%);
+  background-size: 40px 40px;
+}
+
+@utility striped-pattern {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent, #A8E4F0) 15%, transparent) 50%,
+    transparent 50%
+  );
+  background-size: 48px 100%;
+}
+
+@utility striped-pattern-sage {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 15%, transparent) 50%,
+    transparent 50%
+  );
+  background-size: 40px 100%;
+}
+
+@utility vintage-card {
+  @apply bg-white border border-border rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+}
+
+@utility vintage-button {
+  @apply rounded-full px-6 py-2.5 font-medium transition-all duration-300 bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5;
+}
+
+@utility vintage-button-icon {
+  @apply rounded-full w-10 h-10 flex items-center justify-center bg-white border border-border text-primary hover:bg-primary hover:text-white transition-all;
+}
+
+@utility vintage-header {
+  @apply px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 bg-muted/30 border-b border-border;
+}
+
+@utility vintage-input {
+  @apply flex items-center bg-white border border-border rounded-full px-4 py-2 text-sm focus-within:ring-2 focus-within:ring-primary/20;
+}
+
+@utility vintage-dropdown {
+  @apply absolute bg-white border border-border rounded-2xl shadow-xl z-50 overflow-hidden;
+}

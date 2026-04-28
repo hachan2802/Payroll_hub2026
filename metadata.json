@@ -1,0 +1,5 @@
+{
+  "name": "Remix: Payroll Hub",
+  "description": "A comprehensive system for managing and auditing intern payroll data across multiple centers and AE sources.",
+  "requestFramePermissions": []
+}

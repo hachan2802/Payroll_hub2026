@@ -1,0 +1,4 @@
+// This file is intentionally left empty.
+// The router has been moved to routes.tsx to support JSX (lazy + Suspense).
+// See: src/app/routes.tsx
+export {};
