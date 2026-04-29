@@ -34,7 +34,7 @@ export interface TimesheetInputRow {
 interface TimesheetInputTableProps {
   rows: TimesheetInputRow[];
   onUpdateRow: (id: string, field: keyof TimesheetInputRow, value: any) => void;
-  onDeleteRow: (id: string) => void;
+  onClearRow: (id: string) => void;
   onAddRow: () => void;
   onUploadFile: (id: string, file: File) => void;
   onClearAll: () => void;
@@ -45,7 +45,7 @@ interface TimesheetInputTableProps {
 export function TimesheetInputTable({
   rows,
   onUpdateRow,
-  onDeleteRow,
+  onClearRow,
   onAddRow,
   onUploadFile,
   onUploadFiles,
@@ -199,7 +199,7 @@ export function TimesheetInputTable({
                           <RefreshCw className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => onDeleteRow(row.id)}
+                          onClick={() => onClearRow(row.id)}
                           className="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-rose-600 transition-colors"
                           title="Xóa dòng"
                         >

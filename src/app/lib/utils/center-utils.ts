@@ -1,4 +1,3 @@
- 
 import { DEFAULT_CENTERS } from '../../constants';
 
 export const getL07FromFileName = (fileName: string): string => {
@@ -82,4 +81,12 @@ export const getL07FromFileName = (fileName: string): string => {
 
 export const getCenterInfoByL07 = (l07: string) => {
   return DEFAULT_CENTERS.find((c) => c.l07 === l07);
+};
+
+export const getCenterInfoByAECode = (aeCode: string) => {
+  if (!aeCode) return null;
+  const normalizedAE = aeCode.trim().toLowerCase();
+  return DEFAULT_CENTERS.find(
+    (c) => c.aeCode.trim().toLowerCase() === normalizedAE
+  );
 };

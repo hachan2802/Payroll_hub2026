@@ -14,7 +14,7 @@ import { TimesheetInputTable } from '../components/TimesheetInputTable';
 import type { TimesheetInputRow } from '../components/TimesheetInputTable';
 import { DataTable, DataTableRef } from '../components/DataTable';
 import { Button } from '../components/ui/button';
-import { getL07FromFileName, getCenterInfoByL07 } from '../lib/utils/center-utils';
+import { getL07FromFileName, getCenterInfoByL07, getCenterInfoByAECode } from '../lib/utils/center-utils';
 import { generateUUID } from '../lib/utils/id-utils';
 import {
   DropdownMenu,
@@ -103,14 +103,14 @@ const BASE_TASK_COLUMNS = [
   { key: 'parentMeeting', label: 'Parent meeting', type: 'number' as const }, { key: 'pickUpDropOff', label: 'Pick up/ Drop off', type: 'number' as const },
   { key: 'pickUpDropOffAtls', label: 'Pick up/ Drop off ATLS', type: 'number' as const }, { key: 'sms', label: 'SMS', type: 'number' as const },
   { key: 'smsAtls', label: 'SMS ATLS', type: 'number' as const }, { key: 'progressReport', label: 'Progress/Gradebook Report', type: 'number' as const },
-  { key: 'progressReportAtls', label: 'Gradebook Report ATLS', type: 'number' as const }, { key: 'prepareLessonTutoring', label: 'Prepare lesson - Tutoring', type: 'number' as const },
+  { key: 'progressReportAtls', label: 'Gradebook Report ATLS', type: 'number' as const, headerSpanClassName: 'leading-[19px] text-[14px] font-bold' }, { key: 'prepareLessonTutoring', label: 'Prepare lesson - Tutoring', type: 'number' as const },
   { key: 'meetingTraining', label: 'Meeting/ Training', type: 'number' as const }, { key: 'pt', label: 'PT', type: 'number' as const },
   { key: 'discoveryCamp', label: 'Discovery Camp', type: 'number' as const }, { key: 'outing', label: 'Outing', type: 'number' as const },
   { key: 'summer', label: 'Summer', type: 'number' as const }, { key: 'prepareLessonClubs', label: 'Prepare lesson - Clubs', type: 'number' as const },
   { key: 'conductTest', label: 'Conduct test', type: 'number' as const }, { key: 'renewalProjects', label: 'Renewal Projects', type: 'number' as const },
   { key: 'supportLxo', label: 'Support LXO', type: 'number' as const }, { key: 'supportEc', label: 'Support EC', type: 'number' as const },
   { key: 'supportMkt', label: 'Support MKT', type: 'number' as const }, { key: 'totalHours', label: 'Total Hours', type: 'number' as const },
-  { key: 'academicHours', label: 'Academic Hours', type: 'number' as const }, { key: 'adminHours', label: 'Admin Hours', type: 'number' as const, cellClassName: 'text-xs leading-[2px]', headerSpanClassName: 'text-xs no-underline leading-[11px] text-[#49780f]' }
+  { key: 'academicHours', label: 'Academic Hours', type: 'number' as const }, { key: 'adminHours', label: 'Admin Hours', type: 'number' as const, cellClassName: 'text-xs', headerSpanClassName: 'text-xs no-underline leading-[11px] text-[#49780f]' }
 ];
 
 const SALARY_COLUMNS = [
@@ -220,6 +220,7 @@ export default function TimesheetSummaryPage() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
   const tableRef = useRef<DataTableRef>(null);
 
   // DATA FROM CONTEXT
@@ -231,8 +232,6 @@ export default function TimesheetSummaryPage() {
     { id: '1', l07: '', aeCode: '', bus: '', url: '', status: 'pending' }
   ];
 
-  const [skippedCount, setSkippedCount] = useState(0);
-
   // LOGIC: Bảng Input
   const handleAddRow = () => {
     updateAppData(prev => ({
@@ -243,37 +242,47 @@ export default function TimesheetSummaryPage() {
   const handleUpdateRow = (id: string, field: keyof TimesheetInputRow, val: any) => {
     updateAppData(prev => ({
       ...prev,
-      Timesheet_InputList: inputRows.map(r => r.id === id ? { ...r, [field]: val } : r)
+      Timesheet_InputList: (prev.Timesheet_InputList || []).map(r => r.id === id ? { ...r, [field]: val } : r)
     }), false); // No history for typing
   };
-  const handleDeleteRow = (id: string) => {
+  const handleClearRow = (id: string) => {
     updateAppData(prev => ({
       ...prev,
-      Timesheet_InputList: inputRows.filter(r => r.id !== id)
+      Timesheet_InputList: (prev.Timesheet_InputList || []).map(r => 
+        r.id === id ? { 
+            ...r, 
+            url: '', 
+            fileName: undefined, 
+            sheetName: undefined, 
+            status: 'pending', 
+            count: undefined, 
+            date: undefined, 
+            columnMapping: undefined 
+        } : r
+      )
     }));
   };
   const handleClearAll = () => {
     updateAppData(prev => ({
       ...prev,
-      Timesheet_InputList: [], Q_Roster: [], Q_Salary_Scale: [], Q_Staff: [], Q_Cache: []
+      Timesheet_InputList: (prev.Timesheet_InputList || []).map(r => ({
+          ...r,
+          url: '',
+          fileName: undefined,
+          sheetName: undefined,
+          status: 'pending',
+          count: undefined,
+          date: undefined,
+          columnMapping: undefined
+      })),
+      Q_Roster: [], Q_Salary_Scale: [], Q_Staff: [], Q_Cache: []
     }));
-    toast?.success("Đã xóa toàn bộ dữ liệu.");
+    toast?.success("Đã xóa toàn bộ dữ liệu (đã giữ lại thông tin center).");
   };
 
-  const handleDeleteTotalData = () => {
-    updateAppData(prev => ({
-      ...prev,
-      Timesheet_InputList: (prev.Timesheet_InputList || []).map(row => ({
-        ...row,
-        url: '',
-        status: 'pending'
-      })),
-      Q_Roster: [],
-      Q_Salary_Scale: [],
-      Q_Staff: [],
-      Q_Cache: []
-    }));
-    toast?.success("Đã reset dữ liệu tổng, giữ lại cấu trúc file.");
+  const handleRecalculate = () => {
+    setRefreshKey(prev => prev + 1);
+    toast?.success("Đã tổng hợp lại dữ liệu.");
   };
 
   const handleUploadFiles = async (files: File[]) => {
@@ -294,7 +303,7 @@ export default function TimesheetSummaryPage() {
 
     updateAppData(prev => ({
       ...prev,
-      Timesheet_InputList: [...inputRows, ...newRows]
+      Timesheet_InputList: [...(prev.Timesheet_InputList || []), ...newRows]
     }));
 
     // Process each file
@@ -411,9 +420,15 @@ export default function TimesheetSummaryPage() {
 
       // Tham chiếu ngược từ file upload để lấy L07 / AE / Bus nếu có
       const rowInfo = inputRows.find(ir => ir.id === t._rowId);
-      const center = String(rowInfo?.l07 || getVal(t, ['center', 'location', 'cơ sở']) || '').trim();
-      const maAE = String(rowInfo?.aeCode || getVal(t, ['mã ae', 'ae']) || 'UNKNOWN');
-      const business = String(rowInfo?.bus || getVal(t, ['business']) || 'UNKNOWN');
+      const rawCenterCol = String(getVal(t, ['center', 'location', 'cơ sở']) || '').trim();
+      const rawAECol = String(getVal(t, ['mã ae', 'ae']) || '').trim();
+      
+      // Lấy thông tin từ AE Code trước (phù hợp với logic "center trong excel = mã ae")
+      const centerInfo = getCenterInfoByAECode(rawAECol) || getCenterInfoByAECode(rawCenterCol) || getCenterInfoByL07(rowInfo?.l07 || rawCenterCol);
+      
+      const center = centerInfo?.l07 || rowInfo?.l07 || rawCenterCol || 'UNKNOWN';
+      const maAE = centerInfo?.aeCode || rowInfo?.aeCode || rawAECol || 'UNKNOWN';
+      const business = centerInfo?.bus || rowInfo?.bus || String(getVal(t, ['business']) || 'UNKNOWN');
       
       const classCode = String(getVal(t, ['class', 'lớp']) || '');
       const from = getVal(t, ['from', 'từ']) || '';
@@ -463,7 +478,9 @@ export default function TimesheetSummaryPage() {
       }
     });
 
-    if (skipped > 0) setTimeout(() => setSkippedCount(skipped), 0);
+    if (skipped > 0) {
+      // Logic skipped count moved to useEffect below
+    }
 
     const finalize = (obj: any) => Object.values(obj).map((r: any, idx) => {
       const ded = (r.inClass + r.inClassAtls + r.clubActivity + r.parentMeeting) / 2;
@@ -493,8 +510,8 @@ export default function TimesheetSummaryPage() {
       };
     });
 
-    return { processedRosterData: details, employeeSummary: finalize(empGroup), centerSummary: finalize(cenGroup) };
-  }, [rosterData, salaryScaleData, staffData, cacheData, fromDate, toDate, inputRows]);
+    return { processedRosterData: details, employeeSummary: finalize(empGroup), centerSummary: finalize(cenGroup), skippedCount: skipped };
+  }, [rosterData, salaryScaleData, staffData, cacheData, fromDate, toDate, inputRows, refreshKey]);
 
   useEffect(() => {
     updateAppData((prev: any) => ({
@@ -645,9 +662,9 @@ export default function TimesheetSummaryPage() {
                   <Trash2 className="w-4 h-4 text-rose-500" />
                   <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-rose-500">Xóa toàn bộ trang</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleDeleteTotalData} className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-amber-50 transition-colors text-amber-600">
+                <DropdownMenuItem onSelect={handleRecalculate} className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-amber-50 transition-colors text-amber-600">
                   <RefreshCw className="w-4 h-4 text-amber-600" />
-                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-amber-600">Reset dữ liệu tổng</span>
+                  <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-amber-600">Tổng hợp lại dữ liệu</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-primary/5 mx-1" />
                   {activeTab === 'files' && (
@@ -683,7 +700,7 @@ export default function TimesheetSummaryPage() {
               rows={inputRows}
               onAddRow={handleAddRow}
               onUpdateRow={handleUpdateRow}
-              onDeleteRow={handleDeleteRow}
+              onClearRow={handleClearRow}
               onClearAll={handleClearAll}
               onUploadFile={handleUploadFile}
               onUploadFiles={handleUploadFiles}

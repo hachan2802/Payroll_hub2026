@@ -105,23 +105,63 @@ interface DataTableProps {
 
 const ColumnFilter = ({
   column,
-  data,
+  allData,
   filterState,
   onFilterChange,
-  onSort
+  onSort,
+  searchTerm
 }: any) => {
   const [search, setSearch] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
 
   const uniqueValues = useMemo(() => {
+    if (!isOpen) return [];
+    
     const vals = new Set<any>();
-    data.forEach((row: any) => {
+    
+    // Dependent Filtering: Calculate options based on other filters
+    let currentData = allData;
+
+    // 1. Apply Global Search
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      currentData = currentData.filter((row: any) =>
+        Object.values(row).some(
+          (val) => val != null && String(val).toLowerCase().includes(lowerSearch)
+        )
+      );
+    }
+
+    // 2. Apply ALL OTHER column filters
+    Object.entries(filterState).forEach(([key, allowedValues]) => {
+      if (key !== column.key && allowedValues instanceof Set) {
+        currentData = currentData.filter((row: any) => allowedValues.has(row[key]));
+      }
+    });
+
+    // 3. Extract unique values from contextually filtered data
+    currentData.forEach((row: any) => {
       const val = row[column.key];
       if (val != null && val !== '') {
         vals.add(val);
+      } else {
+        vals.add('undefined'); 
       }
     });
-    return Array.from(vals).sort();
-  }, [data, column.key]);
+    
+    // Also include currently selected values even if they aren't in the contextually filtered data
+    // so the user can see what they've selected and potentially unselect them.
+    const currentSelection = filterState[column.key];
+    if (currentSelection instanceof Set) {
+      currentSelection.forEach(val => vals.add(val));
+    }
+
+    return Array.from(vals).sort((a: any, b: any) => {
+      if (a === 'undefined') return -1;
+      if (b === 'undefined') return 1;
+      return String(a).localeCompare(String(b), undefined, { numeric: true });
+    });
+  }, [allData, column.key, filterState, searchTerm, isOpen]);
 
   const filteredValues = useMemo(() => {
     if (!search) return uniqueValues;
@@ -158,7 +198,7 @@ const ColumnFilter = ({
   };
 
   return (
-    <Popover>
+    <Popover onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <button
           className={`flex items-center justify-center p-1 rounded hover:bg-rose-100 transition-colors ${currentFilters && currentFilters.size !== uniqueValues.length ? 'text-rose-500' : 'text-rose-200 group-hover:text-rose-400'}`}
@@ -169,7 +209,7 @@ const ColumnFilter = ({
           <Filter className="w-3.5 h-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-0 rounded-xl" align="start" onClick={(e) => e.stopPropagation()}>
+      <PopoverContent className="w-64 p-0 rounded-xl bg-white shadow-2xl border-2 border-primary/20" align="start" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col p-2 border-b">
           <button
             className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-muted rounded text-left font-bold"
@@ -1745,10 +1785,11 @@ export const DataTable = React.forwardRef<DataTableRef, DataTableProps>(
                           {col.sortable !== false && (
                             <ColumnFilter
                               column={col}
-                              data={data}
+                              allData={data}
                               filterState={columnFilters}
                               onFilterChange={handleFilterChange}
                               onSort={handleSort}
+                              searchTerm={debouncedSearchTerm}
                             />
                           )}
                         </div>
@@ -1925,7 +1966,7 @@ export const DataTable = React.forwardRef<DataTableRef, DataTableProps>(
                     setVsScrollTop(0);
                     scrollContainerRef.current?.scrollTo({ top: 0 });
                   }}
-                  className="h-7 px-2 text-[12px] font-bold uppercase tracking-widest text-primary border border-border rounded-[90px] flex items-center bg-transparent focus:ring-0 cursor-pointer hover:bg-primary/5 transition-colors"
+                  className="h-7 px-2 text-[13px] font-bold uppercase tracking-widest text-primary border border-border rounded-[90px] flex items-center bg-transparent focus:ring-0 cursor-pointer hover:bg-primary/5 transition-colors"
                 >
                   <option value="50">50 dòng</option>
                   <option value="100">100 dòng</option>

@@ -41,6 +41,8 @@
   --secondary-foreground: #5D111A;
   --accent: #F2CFD5;     /* Soft Light Pink */
   --accent-foreground: #5D111A;
+  --popover: #FFFFFF;
+  --popover-foreground: #5D111A;
   --muted: #F4ECD8;      /* Cream */
   --muted-foreground: #A87E84;
   --border: rgba(93, 17, 26, 0.15);
@@ -112,6 +114,8 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   
